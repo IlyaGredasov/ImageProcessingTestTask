@@ -1,0 +1,289 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>1320</width>
+    <height>680</height>
+   </rect>
+  </property>
+  <property name="minimumSize">
+   <size>
+    <width>1320</width>
+    <height>680</height>
+   </size>
+  </property>
+  <property name="maximumSize">
+   <size>
+    <width>1920</width>
+    <height>1080</height>
+   </size>
+  </property>
+  <property name="windowTitle">
+   <string>MainWindow</string>
+  </property>
+  <property name="styleSheet">
+   <string notr="true">QPushButton {
+    color: #ff7f27;
+    border: 2px solid #ff7f27;
+    border-radius: 4px;
+    background-color: transparent;
+    padding: 6px 12px;
+    font-size: 18px;
+}
+QPushButton:hover {
+    background-color: #bf6900;
+}
+QPushButton:pressed {
+    background-color: #333333;
+}
+
+
+QLabel {
+    color: #ff7f27;
+    font-size: 16px;
+    background-color: transparent;
+}
+
+QWidget {
+    background-color: #000000;
+    color: #ff7f27;
+}
+
+QFrame {
+    border: 2px solid #ff7f27;
+    border-radius: 4px;
+    background-color: transparent;
+}
+
+QLineEdit {
+    color: #ff7f27;
+    border: 2px solid #ff7f27;
+    border-radius: 4px;
+    background-color: transparent;
+    padding: 4px 8px;
+    font-size: 16px;
+}
+
+</string>
+  </property>
+  <widget class="QWidget" name="centralWidget">
+   <property name="sizePolicy">
+    <sizepolicy hsizetype="Expanding" vsizetype="Minimum">
+     <horstretch>0</horstretch>
+     <verstretch>0</verstretch>
+    </sizepolicy>
+   </property>
+   <property name="minimumSize">
+    <size>
+     <width>0</width>
+     <height>0</height>
+    </size>
+   </property>
+   <property name="maximumSize">
+    <size>
+     <width>1920</width>
+     <height>1080</height>
+    </size>
+   </property>
+   <layout class="QHBoxLayout" name="horizontalLayout">
+    <item>
+     <widget class="QLabel" name="imageLabel">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="minimumSize">
+       <size>
+        <width>900</width>
+        <height>600</height>
+       </size>
+      </property>
+      <property name="frameShape">
+       <enum>QFrame::Shape::WinPanel</enum>
+      </property>
+      <property name="frameShadow">
+       <enum>QFrame::Shadow::Sunken</enum>
+      </property>
+      <property name="text">
+       <string/>
+      </property>
+      <property name="scaledContents">
+       <bool>false</bool>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignmentFlag::AlignCenter</set>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <layout class="QVBoxLayout" name="verticalLayout">
+      <property name="sizeConstraint">
+       <enum>QLayout::SizeConstraint::SetMinimumSize</enum>
+      </property>
+      <item>
+       <widget class="QPushButton" name="gaussButton">
+        <property name="text">
+         <string>Фильтр Гаусса</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="sobelButton">
+        <property name="text">
+         <string>Оператор Собеля</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="erosionButton">
+        <property name="text">
+         <string>Эрозия (thresh)</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="dilatationButton">
+        <property name="text">
+         <string>Дилатация (thresh)</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="grayscaleButton">
+        <property name="text">
+         <string>Перевод в ЧБ</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="contrastButton">
+        <property name="text">
+         <string>Контрастирование</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="transformComponentButton">
+        <property name="text">
+         <string>Изменение RGB компонент (r, g, b)</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="scaleButton">
+        <property name="text">
+         <string>Гомотетия (sx, sy)</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="flipButton">
+        <property name="text">
+         <string>Отражение (h, v)</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="rotateButton">
+        <property name="text">
+         <string>Поворот (a)</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" name="paramsLayout">
+        <property name="sizeConstraint">
+         <enum>QLayout::SizeConstraint::SetMinimumSize</enum>
+        </property>
+        <item>
+         <widget class="QLineEdit" name="firstLineEdit">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>16777215</width>
+            <height>50</height>
+           </size>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLineEdit" name="secondLineEdit">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>16777215</width>
+            <height>50</height>
+           </size>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLineEdit" name="thirdLineEdit">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>16777215</width>
+            <height>50</height>
+           </size>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+     </layout>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QMenuBar" name="menuBar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>1320</width>
+     <height>33</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="openFileMenu">
+    <property name="title">
+     <string>Файл</string>
+    </property>
+    <addaction name="openFileAction"/>
+    <addaction name="saveFileAction"/>
+   </widget>
+   <addaction name="openFileMenu"/>
+  </widget>
+  <action name="openFileAction">
+   <property name="text">
+    <string>Открыть файл</string>
+   </property>
+  </action>
+  <action name="saveFileAction">
+   <property name="text">
+    <string>Сохранить файл</string>
+   </property>
+  </action>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
