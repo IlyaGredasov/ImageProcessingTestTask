@@ -149,7 +149,7 @@ void MainWindow::applyFlip() const {
 	fillWithColorMatrix(iptt::flip(asColorMatrix(), h, v));
 }
 void MainWindow::applyRotate() const {
-	constexpr auto pi = std::atan(1) * 4;
+	const auto pi = std::atan(1) * 4;
 	const auto angle = ui->firstLineEdit->text().toDouble() * pi / 180.0;
 	const auto rotated = iptt::rotate(asColorMatrix(), angle);
 	const auto cropped = iptt::crop_borders(rotated, [](const iptt::RGB& rgb) { return iptt::brightness(rgb) > 50; });
