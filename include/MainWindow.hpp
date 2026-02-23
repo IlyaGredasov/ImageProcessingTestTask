@@ -2,6 +2,7 @@
 
 #include "matrix.hpp"
 #include "processing.hpp"
+
 #include <QMainWindow>
 
 class Ui_MainWindow;

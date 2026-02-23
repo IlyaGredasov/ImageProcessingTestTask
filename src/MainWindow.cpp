@@ -1,9 +1,10 @@
-#include <MainWindow.hpp>
+#include "MainWindow.hpp"
+#include "matrix.hpp"
+#include "processing.hpp"
+#include "ui_MainWindow.h"
+
 #include <QFileDialog>
 #include <QMessageBox>
-#include <matrix.hpp>
-#include <processing.hpp>
-#include <ui_MainWindow.h>
 
 void MainWindow::openImage() {
     const QString filePath =
