@@ -27,15 +27,15 @@ public:
     static_assert(!std::is_volatile_v<T>, "T must not be volatile");
 
     GeneralMatrix(const size_t rows, const size_t cols) : rows_(rows), cols_(cols) {}
-    size_t rows() const { return rows_; }
-    size_t cols() const { return cols_; }
+    size_t rows() const noexcept { return rows_; }
+    size_t cols() const noexcept { return cols_; }
 
     // Если мы работаем с lvalue, безопасно возвращать T&
     T& at(const size_t i, const size_t j) & { return static_cast<Derived&>(*this).at_impl(i, j); }
     const T& at(const size_t i, const size_t j) const& { return static_cast<const Derived&>(*this).at_impl(i, j); }
 
-    T* data() { return static_cast<Derived&>(*this).data_impl(); }
-    const T* data() const { return static_cast<const Derived&>(*this).data_impl(); }
+    T* data() noexcept { return static_cast<Derived&>(*this).data_impl(); }
+    const T* data() const noexcept { return static_cast<const Derived&>(*this).data_impl(); }
 
     // Перемещаем тяжелые T без копирования
     T at(const size_t i, const size_t j) && { return std::move(static_cast<Derived&>(*this).at_impl(i, j)); }
@@ -175,7 +175,7 @@ public:
 
     Matrix(const Matrix&) = default; // Так как мы определяем свой operator= через шаблонный в базовом классе,
                                      // компилятор не сгенерирует конструкторы по умолчанию
-    Matrix(Matrix&&) = default;
+    Matrix(Matrix&&) noexcept = default;
 
     template <typename OtherDerived> // Чтобы все было по open/closed, сделаем шаблонный ctor от всех наследников
     explicit Matrix(const GeneralMatrix<OtherDerived, T>& other)
@@ -186,7 +186,10 @@ public:
     }
 
     Matrix& operator=(const Matrix& other) { return Base::template operator= <Matrix>(other); }
-    Matrix& operator=(Matrix&& other) { return Base::template operator= <Matrix>(std::move(other)); }
+    Matrix& operator=(Matrix&& other) noexcept {
+        swap(other);
+        return *this;
+    }
 
     template <typename OtherDerived>
     Matrix& operator=(const GeneralMatrix<OtherDerived, T>& other) {
@@ -215,8 +218,8 @@ private:
             throw std::out_of_range("Matrix index out of range");
         return data_[i * this->cols() + j];
     }
-    T* data_impl() { return data_.data(); }
-    const T* data_impl() const { return data_.data(); }
+    T* data_impl() noexcept { return data_.data(); }
+    const T* data_impl() const noexcept { return data_.data(); }
     std::vector<T> data_{}; // Единый вектор более cache-friendly, чем T**
 };
 
@@ -303,8 +306,8 @@ private:
         }
         return data_[(i + i0_) * parent_cols_ + (j + j0_)];
     }
-    T* data_impl() { return data_; }
-    const T* data_impl() const { return data_; }
+    T* data_impl() noexcept { return data_; }
+    const T* data_impl() const noexcept { return data_; }
 
     T* data_;
     size_t i0_, j0_;
@@ -326,17 +329,17 @@ Matrix<T1> operator+(const GeneralMatrix<M1, T1>& m1, const GeneralMatrix<M2, T2
 
 template <typename M1, typename M2, typename T1, typename T2>
 Matrix<T1> operator+(GeneralMatrix<M1, T1>&& m1, const GeneralMatrix<M2, T2>& m2) { // Можно переиспользовать rvalue
-    return std::move(m1) += m2;
+    return std::move(m1 += m2);
 }
 
 template <typename M1, typename M2, typename T1, typename T2>
 Matrix<T1> operator+(const GeneralMatrix<M1, T1>& m1, GeneralMatrix<M2, T2>&& m2) { // Можно переиспользовать rvalue
-    return std::move(m2) += m1; // Считаем, что сложение коммутативно
+    return std::move(m2 += m1); // Считаем, что сложение коммутативно
 }
 
 template <typename M1, typename M2, typename T1, typename T2>
 Matrix<T1> operator+(GeneralMatrix<M1, T1>&& m1, GeneralMatrix<M2, T2>&& m2) { // Можно переиспользовать rvalue
-    return std::move(m1) += std::move(m2);
+    return std::move(m1 += std::move(m2));
 }
 
 template <typename M1, typename M2, typename T1, typename T2>
@@ -353,17 +356,17 @@ Matrix<T1> operator-(const GeneralMatrix<M1, T1>& m1, const GeneralMatrix<M2, T2
 
 template <typename M1, typename M2, typename T1, typename T2>
 Matrix<T1> operator-(GeneralMatrix<M1, T1>&& m1, const GeneralMatrix<M2, T2>& m2) { // Можно переиспользовать rvalue
-    return -(m2 -= std::move(m1));
+    return std::move(m1 -= m2);
 }
 
 template <typename M1, typename M2, typename T1, typename T2>
 Matrix<T1> operator-(const GeneralMatrix<M1, T1>& m1, GeneralMatrix<M2, T2>&& m2) { // Можно переиспользовать rvalue
-    return m1 -= std::move(m2);
+    return std::move(m2 -= m1);
 }
 
 template <typename M1, typename M2, typename T1, typename T2>
-Matrix<T1> operator-(const GeneralMatrix<M1, T1>&& m1, GeneralMatrix<M2, T2>&& m2) { // Можно переиспользовать rvalue
-    return m1 -= std::move(m2);
+Matrix<T1> operator-(GeneralMatrix<M1, T1>&& m1, GeneralMatrix<M2, T2>&& m2) { // Можно переиспользовать rvalue
+    return std::move(m1 -= std::move(m2));
 }
 
 template <typename M1, typename M2, typename T1, typename T2>
@@ -398,7 +401,7 @@ Matrix<T> operator*(const GeneralMatrix<M, T>& m1, const S scalar) {
 
 template <typename M, typename S, typename T, typename = std::enable_if_t<std::is_arithmetic_v<S>>>
 Matrix<T> operator*(GeneralMatrix<M, T>&& m1, const S scalar) { // Можно умножить in-place
-    return std::move(m1) *= scalar;
+    return std::move(m1 *= scalar);
 }
 
 template <typename M, typename S, typename T, typename = std::enable_if_t<std::is_arithmetic_v<S>>>
@@ -414,7 +417,7 @@ Matrix<T> operator/(const GeneralMatrix<M, T>& m1, const S scalar) {
 
 template <typename M, typename S, typename T, typename = std::enable_if_t<std::is_arithmetic_v<S>>>
 Matrix<T> operator/(GeneralMatrix<M, T>&& m1, const S scalar) {
-    return std::move(m1) /= scalar;
+    return std::move(m1 /= scalar);
 }
 
 template <typename M, typename T>

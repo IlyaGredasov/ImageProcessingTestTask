@@ -15,45 +15,51 @@ struct AffineGeometry { // Смещение и размер при аффинн�
     size_t rows{}, cols{};
     double offsetX{}, offsetY{};
 };
-inline unsigned char clamp(const int value) { return static_cast<unsigned char>(std::max(0, std::min(255, value))); }
-inline RGB operator+(const RGB& a, const RGB& b) { return {clamp(a.r + b.r), clamp(a.g + b.g), clamp(a.b + b.b)}; }
+inline unsigned char clamp(const int value) noexcept {
+    return static_cast<unsigned char>(std::max(0, std::min(255, value)));
+}
+inline RGB operator+(const RGB& a, const RGB& b) noexcept {
+    return {clamp(a.r + b.r), clamp(a.g + b.g), clamp(a.b + b.b)};
+}
 
-inline RGB operator-(const RGB& a, const RGB& b) { return {clamp(a.r - b.r), clamp(a.g - b.g), clamp(a.b - b.b)}; }
-inline RGB operator*(const RGB& a, const double scalar) {
+inline RGB operator-(const RGB& a, const RGB& b) noexcept {
+    return {clamp(a.r - b.r), clamp(a.g - b.g), clamp(a.b - b.b)};
+}
+inline RGB operator*(const RGB& a, const double scalar) noexcept {
     return {clamp(static_cast<int>(a.r * scalar)), clamp(static_cast<int>(a.g * scalar)),
         clamp(static_cast<int>(a.b * scalar))};
 }
 
-inline RGB operator/(const RGB& a, const double scalar) { return scalar != 0.f ? a * (1.f / scalar) : RGB{}; }
-inline RGB operator*(const float scalar, const RGB& a) { return a * scalar; }
-inline RGB& operator+=(RGB& a, const RGB& b) {
+inline RGB operator/(const RGB& a, const double scalar) noexcept { return scalar != 0.f ? a * (1.f / scalar) : RGB{}; }
+inline RGB operator*(const float scalar, const RGB& a) noexcept { return a * scalar; }
+inline RGB& operator+=(RGB& a, const RGB& b) noexcept {
     a = a + b;
     return a;
 }
 
-inline RGB& operator-=(RGB& a, const RGB& b) {
+inline RGB& operator-=(RGB& a, const RGB& b) noexcept {
     a = a - b;
     return a;
 }
 
-inline RGB& operator*=(RGB& a, const double scalar) {
+inline RGB& operator*=(RGB& a, const double scalar) noexcept {
     a = a * scalar;
     return a;
 }
 
-inline RGB& operator/=(RGB& a, const double scalar) {
+inline RGB& operator/=(RGB& a, const double scalar) noexcept {
     a = a / scalar;
     return a;
 }
-inline bool operator==(const RGB& a, const RGB& b) { return a.r == b.r && a.g == b.g && a.b == b.b; }
+inline bool operator==(const RGB& a, const RGB& b) noexcept { return a.r == b.r && a.g == b.g && a.b == b.b; }
 
-inline bool operator!=(const RGB& a, const RGB& b) { return !(a == b); }
+inline bool operator!=(const RGB& a, const RGB& b) noexcept { return !(a == b); }
 
-inline int brightness(const RGB& c) { return static_cast<int>(0.299 * c.r + 0.587 * c.g + 0.114 * c.b); }
+inline int brightness(const RGB& c) noexcept { return static_cast<int>(0.299 * c.r + 0.587 * c.g + 0.114 * c.b); }
 
-inline bool operator<(const RGB& a, const RGB& b) { return brightness(a) < brightness(b); }
+inline bool operator<(const RGB& a, const RGB& b) noexcept { return brightness(a) < brightness(b); }
 
-inline bool operator>(const RGB& a, const RGB& b) { return brightness(a) > brightness(b); }
+inline bool operator>(const RGB& a, const RGB& b) noexcept { return brightness(a) > brightness(b); }
 
 template <typename M, typename T, typename Func>
 Matrix<std::invoke_result_t<Func, T>> transform(const GeneralMatrix<M, T>& m, const Func& function) {
@@ -68,8 +74,9 @@ Matrix<std::invoke_result_t<Func, T>> transform(const GeneralMatrix<M, T>& m, co
 
 inline Box compute_bbox(const size_t h, const size_t w,
     const Matrix<double>& A) { // Возвращает box с координатами углов матрицы размера (h, w) после умножения на A
-    const std::array<std::array<double, 2>, 4> corners{{{0.0, 0.0}, {static_cast<double>(w), 0.0},
-        {0.0, static_cast<double>(h)}, {static_cast<double>(w), static_cast<double>(h)}}};
+    const double max_x = w > 0 ? static_cast<double>(w - 1) : 0.0;
+    const double max_y = h > 0 ? static_cast<double>(h - 1) : 0.0;
+    const std::array<std::array<double, 2>, 4> corners{{{0.0, 0.0}, {max_x, 0.0}, {0.0, max_y}, {max_x, max_y}}};
 
     Box b{1e30, 1e30, -1e30, -1e30};
 
@@ -164,8 +171,8 @@ inline AffineGeometry make_output_geometry(const size_t rows, const size_t cols,
     const auto maxY = static_cast<int>(std::ceil(max_y));
 
     AffineGeometry g;
-    g.rows = maxY - minY;
-    g.cols = maxX - minX;
+    g.rows = maxY - minY + 1;
+    g.cols = maxX - minX + 1;
     g.offsetX = minX;
     g.offsetY = minY;
     return g;
@@ -215,8 +222,8 @@ inline Matrix<double> rotate_matrix(const double theta) {
 
 template <typename M, typename T>
 Matrix<T> rotate(const GeneralMatrix<M, T>& src, const double theta) {
-    const double cx = src.cols() / 2.0;
-    const double cy = src.rows() / 2.0;
+    const double cx = (src.cols() - 1) / 2.0;
+    const double cy = (src.rows() - 1) / 2.0;
 
     Matrix<double> A = shift_matrix(cx, cy) * rotate_matrix(theta) * shift_matrix(-cx, -cy);
 
@@ -231,8 +238,8 @@ inline Matrix<double> scale_matrix(const double sx, const double sy) {
 
 template <typename M, typename T>
 Matrix<T> scale(const GeneralMatrix<M, T>& src, const double sx, const double sy) {
-    const double cx = src.cols() / 2.0;
-    const double cy = src.rows() / 2.0;
+    const double cx = (src.cols() - 1) / 2.0;
+    const double cy = (src.rows() - 1) / 2.0;
 
     Matrix<double> A = shift_matrix(cx, cy) * scale_matrix(sx, sy) * shift_matrix(-cx, -cy);
 
@@ -249,8 +256,8 @@ inline Matrix<double> flip_matrix(const bool horizontal, const bool vertical) {
 
 template <typename M, typename T>
 Matrix<T> flip(const GeneralMatrix<M, T>& src, const bool horizontal, const bool vertical) {
-    const double cx = src.cols() / 2.0;
-    const double cy = src.rows() / 2.0;
+    const double cx = (src.cols() - 1) / 2.0;
+    const double cy = (src.rows() - 1) / 2.0;
     const Matrix A = shift_matrix(cx, cy) * flip_matrix(horizontal, vertical) * shift_matrix(-cx, -cy);
     return affine_transform(src, A, A);
 }
