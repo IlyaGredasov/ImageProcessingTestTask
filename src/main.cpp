@@ -1,6 +1,6 @@
-#include "MainWindow.hpp"
-
 #include <QApplication>
+
+#include "MainWindow.hpp"
 
 int main(int argc, char* argv[]) {
     const QApplication app(argc, argv);

@@ -1,7 +1,8 @@
-#include <gtest/gtest.h>
-#include <matrix.hpp>
-#include <processing.hpp>
 #include <type_traits>
+
+#include <gtest/gtest.h>
+
+#include "matrix.hpp"
 
 using namespace iptt;
 
@@ -168,6 +169,8 @@ TEST(MatrixMeta, RowsColsPreserved) {
 }
 
 TEST(MatrixViewRules, ViewConstructionOnLvalueOnly) {
-    static_assert(!std::is_constructible_v<MatrixView<int>, Matrix<int>&&>,
-        "iptt::MatrixView must not be constructible from rvalue iptt::Matrix");
+    static_assert(
+        !std::is_constructible_v<MatrixView<int>, Matrix<int>&&>,
+        "iptt::MatrixView must not be constructible from rvalue iptt::Matrix"
+    );
 }

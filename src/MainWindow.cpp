@@ -1,10 +1,10 @@
+#include <QFileDialog>
+#include <QMessageBox>
+
 #include "MainWindow.hpp"
 #include "matrix.hpp"
 #include "processing.hpp"
 #include "ui_MainWindow.h"
-
-#include <QFileDialog>
-#include <QMessageBox>
 
 void MainWindow::openImage() {
     const QString filePath =
@@ -29,8 +29,12 @@ void MainWindow::saveImage() {
         return;
     }
 
-    const QString filePath = QFileDialog::getSaveFileName(this, "Save Image", "",
-        "PNG Image (*.png);;JPEG Image (*.jpg *.jpeg);;Bitmap (*.bmp)");
+    const QString filePath = QFileDialog::getSaveFileName(
+        this,
+        "Save Image",
+        "",
+        "PNG Image (*.png);;JPEG Image (*.jpg *.jpeg);;Bitmap (*.bmp)"
+    );
     if (filePath.isEmpty()) {
         return;
     }

@@ -1,9 +1,9 @@
 #pragma once
 
-#include "matrix.hpp"
-
 #include <array>
 #include <cmath>
+
+#include "matrix.hpp"
 
 namespace iptt { // При работе с матрицами переводим их в математические координаты
 struct Box {
@@ -27,8 +27,11 @@ inline RGB operator-(const RGB& a, const RGB& b) noexcept {
     return {clamp(a.r - b.r), clamp(a.g - b.g), clamp(a.b - b.b)};
 }
 inline RGB operator*(const RGB& a, const double scalar) noexcept {
-    return {clamp(static_cast<int>(a.r * scalar)), clamp(static_cast<int>(a.g * scalar)),
-        clamp(static_cast<int>(a.b * scalar))};
+    return {
+        clamp(static_cast<int>(a.r * scalar)),
+        clamp(static_cast<int>(a.g * scalar)),
+        clamp(static_cast<int>(a.b * scalar))
+    };
 }
 
 inline RGB operator/(const RGB& a, const double scalar) noexcept { return scalar != 0.f ? a * (1.f / scalar) : RGB{}; }
@@ -73,8 +76,8 @@ Matrix<std::invoke_result_t<Func, T>> transform(const GeneralMatrix<M, T>& m, co
     return result;
 }
 
-inline Box compute_bbox(const size_t h, const size_t w,
-    const Matrix<double>& A) { // Возвращает box с координатами углов матрицы размера (h, w) после умножения на A
+// Возвращает box с координатами углов матрицы размера (h, w) после умножения на A
+inline Box compute_bbox(const size_t h, const size_t w, const Matrix<double>& A) {
     const double max_x = w > 0 ? static_cast<double>(w - 1) : 0.0;
     const double max_y = h > 0 ? static_cast<double>(h - 1) : 0.0;
     const std::array<std::array<double, 2>, 4> corners{{{0.0, 0.0}, {max_x, 0.0}, {0.0, max_y}, {max_x, max_y}}};
@@ -93,7 +96,7 @@ inline Box compute_bbox(const size_t h, const size_t w,
 }
 
 template <typename M, typename T, typename Func, typename = std::enable_if_t<std::is_invocable_r_v<bool, Func, T>>>
-Matrix<T> crop_borders(const GeneralMatrix<M, T>& m, Func&& crop_while_predicate) {
+Matrix<T> crop_borders(const GeneralMatrix<M, T>& m, const Func& crop_while_predicate) {
     // Срезаем границы, пока предикат истинен
     const size_t rows = m.rows();
     const size_t cols = m.cols();
@@ -207,8 +210,8 @@ Matrix<T> warp_affine(const GeneralMatrix<M, T>& src, const Matrix<double>& inv_
 }
 
 template <typename M, typename T>
-static Matrix<T> affine_transform(const GeneralMatrix<M, T>& src, const Matrix<double>& A,
-    const Matrix<double>& inv_A) {
+static Matrix<T>
+affine_transform(const GeneralMatrix<M, T>& src, const Matrix<double>& A, const Matrix<double>& inv_A) {
     const auto geom = make_output_geometry(src.rows(), src.cols(), A);
     return warp_affine(src, inv_A, geom);
 }
@@ -264,8 +267,10 @@ Matrix<T> flip(const GeneralMatrix<M, T>& src, const bool horizontal, const bool
 }
 
 template <typename M1, typename M2, typename T1, typename T2>
-T1 dot_product(const GeneralMatrix<M1, T1>& m1,
-    const GeneralMatrix<M2, T2>& m2) { // Поэлементное скалярное произведение
+T1 dot_product(
+    const GeneralMatrix<M1, T1>& m1,
+    const GeneralMatrix<M2, T2>& m2
+) { // Поэлементное скалярное произведение
     if (!is_same_shape(m1, m2)) {
         throw std::invalid_argument("Matrices have different shapes");
     }

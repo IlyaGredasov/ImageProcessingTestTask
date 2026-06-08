@@ -1,9 +1,9 @@
 #pragma once
 
+#include <QMainWindow>
+
 #include "matrix.hpp"
 #include "processing.hpp"
-
-#include <QMainWindow>
 
 class Ui_MainWindow;
 
@@ -41,7 +41,7 @@ public:
 
     void applyTransformComponent() const;
 
-    ~MainWindow() override;
+    virtual ~MainWindow() override;
 
 private slots:
     void openImage();

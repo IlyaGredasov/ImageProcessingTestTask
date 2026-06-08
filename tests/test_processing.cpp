@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
-#include <matrix.hpp>
-#include <processing.hpp>
+
+#include "processing.hpp"
 
 using namespace iptt;
 
