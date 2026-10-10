@@ -148,6 +148,11 @@ public:
     }
 
     Derived& operator-() { return static_cast<Derived&>(*this *= T(-1)); }
+
+    GeneralMatrix(const GeneralMatrix&) = default;
+    GeneralMatrix& operator=(const GeneralMatrix&) = default;
+    GeneralMatrix(GeneralMatrix&&) = default;
+    GeneralMatrix& operator=(GeneralMatrix&&) = default;
     virtual ~GeneralMatrix() {};
 
 protected:
@@ -206,6 +211,8 @@ public:
         std::swap(this->cols_, other.cols_);
         std::swap(this->data_, other.data_);
     }
+
+    ~Matrix() override {};
 
 private:
     T& at_impl(const size_t i, const size_t j) {
@@ -283,7 +290,11 @@ public:
 
     MatrixView& operator=(const Matrix<T>& other) { return Base::template operator= <Matrix<T>>(other); }
 
-    MatrixView& operator=(const MatrixView& other) { return Base::template operator= <MatrixView>(other); }
+    MatrixView& operator=(const MatrixView& other) {
+        if (this == &other)
+            return this;
+        return Base::template operator= <MatrixView>(other);
+    }
 
     // Метод, чтобы сдвинуть view на вектор (x, y) (работает в матричных координатах)
     void move_by(const int x, const int y) {
